@@ -52,6 +52,7 @@ User's Guide
    cli
    python
    stateful
+   schemas
    compatibility
    examples
    graphql
