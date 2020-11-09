@@ -16,6 +16,7 @@ from ...stateful import Feedback
 from ...utils import NOT_SET
 from .constants import LOCATION_TO_CONTAINER
 from .parameters import OpenAPIParameter, parameters_to_json_schema
+from .negative import negative_schema
 
 PARAMETERS = frozenset(("path_parameters", "headers", "cookies", "query", "body"))
 SLASH = "/"
@@ -89,7 +90,10 @@ def get_case_strategy(  # pylint: disable=too-many-locals
     Explicit `path_parameters`, `headers`, `cookies`, `query`, `body` arguments will be used in the resulting `Case`
     object.
     """
-    to_strategy = {DataGenerationMethod.positive: make_positive_strategy}[data_generation_method]
+    to_strategy = {
+        DataGenerationMethod.positive: make_positive_strategy,
+        DataGenerationMethod.negative: make_negative_strategy,
+    }[data_generation_method]
 
     context = HookContext(endpoint)
 
@@ -177,6 +181,10 @@ def get_parameters_strategy(
 
 def make_positive_strategy(schema: Dict[str, Any]) -> st.SearchStrategy:
     return from_schema(schema, custom_formats=STRING_FORMATS)
+
+
+def make_negative_strategy(schema: Dict[str, Any], parameter: str) -> st.SearchStrategy:
+    return negative_schema(schema, parameter=parameter, custom_formats=STRING_FORMATS)
 
 
 def is_valid_path(parameters: Dict[str, Any]) -> bool:

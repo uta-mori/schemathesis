@@ -166,7 +166,7 @@ def test_commands_run_help(cli):
         "  -c, --checks [not_a_server_error|status_code_conformance|"
         "content_type_conformance|response_headers_conformance|response_schema_conformance|all]",
         "                                  List of checks to run.",
-        "  -D, --data-generation-method [positive]",
+        "  -D, --data-generation-method [positive|negative]",
         "                                  Defines how Schemathesis generates data for",
         "                                  tests.",
         "",
