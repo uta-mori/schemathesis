@@ -8,9 +8,8 @@ import attr
 import hypothesis
 
 from ..._hypothesis import create_test
-from ...constants import DEFAULT_STATEFUL_RECURSION_LIMIT
 from ...models import CheckFunction, TestResultSet
-from ...stateful import Feedback, Stateful
+from ...stateful import Stateful
 from ...targets import Target
 from ...types import RawAuth
 from ...utils import capture_hypothesis_output, get_requests_auth
@@ -30,11 +29,8 @@ def _run_task(
     stateful: Optional[Stateful],
     **kwargs: Any,
 ) -> None:
-    def _run_tests(maker: Callable, recursion_level: int = 0) -> None:
-        if recursion_level > DEFAULT_STATEFUL_RECURSION_LIMIT:
-            return
+    def _run_tests(maker: Callable) -> None:
         for _endpoint, data_generation_method, test in maker(test_template, settings, seed):
-            feedback = Feedback(stateful, _endpoint)
             for event in run_test(
                 _endpoint,
                 test,
@@ -42,12 +38,9 @@ def _run_task(
                 data_generation_method,
                 targets,
                 results,
-                recursion_level=recursion_level,
-                feedback=feedback,
                 **kwargs,
             ):
                 events_queue.put(event)
-            _run_tests(feedback.get_stateful_tests, recursion_level + 1)
 
     with capture_hypothesis_output():
         while not tasks_queue.empty():

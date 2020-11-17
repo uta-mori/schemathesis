@@ -6,16 +6,13 @@ from ..handlers import EventHandler
 from . import default
 
 
-def handle_before_execution(context: ExecutionContext, event: events.BeforeExecution) -> None:
-    if event.recursion_level > 0:
-        context.endpoints_count += 1  # type: ignore
-
-
 def handle_after_execution(context: ExecutionContext, event: events.AfterExecution) -> None:
     context.endpoints_processed += 1
     context.results.append(event.result)
     context.hypothesis_output.extend(event.hypothesis_output)
     default.display_execution_result(context, event)
+    if context.endpoints_count == context.endpoints_processed:
+        click.echo()
 
 
 class ShortOutputStyleHandler(EventHandler):
@@ -26,13 +23,9 @@ class ShortOutputStyleHandler(EventHandler):
         """
         if isinstance(event, events.Initialized):
             default.handle_initialized(context, event)
-        if isinstance(event, events.BeforeExecution):
-            handle_before_execution(context, event)
         if isinstance(event, events.AfterExecution):
             handle_after_execution(context, event)
         if isinstance(event, events.Finished):
-            if context.endpoints_count == context.endpoints_processed:
-                click.echo()
             default.handle_finished(context, event)
         if isinstance(event, events.Interrupted):
             default.handle_interrupted(context, event)
