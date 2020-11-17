@@ -42,7 +42,6 @@ class BaseRunner:
     seed: Optional[int] = attr.ib(default=None)  # pragma: no mutate
     exit_first: bool = attr.ib(default=False)  # pragma: no mutate
     stateful: Optional[Stateful] = attr.ib(default=None)  # pragma: no mutate
-    stateful_recursion_limit: int = attr.ib(default=DEFAULT_STATEFUL_RECURSION_LIMIT)  # pragma: no mutate
 
     def execute(self) -> Generator[events.ExecutionEvent, None, None]:
         """Common logic for all runners."""
@@ -75,7 +74,7 @@ class BaseRunner:
         **kwargs: Any,
     ) -> Generator[events.ExecutionEvent, None, None]:
         """Run tests and recursively run additional tests."""
-        if recursion_level > self.stateful_recursion_limit:
+        if recursion_level > DEFAULT_STATEFUL_RECURSION_LIMIT:
             return
         for endpoint, data_generation_method, test in maker(template, settings, seed):
             feedback = Feedback(self.stateful, endpoint)
