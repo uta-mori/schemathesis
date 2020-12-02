@@ -7,7 +7,8 @@ Changelog
 **Added**
 
 - Execution phases to the Schemathesis runner. This mechanism aims to distinguish the runner execution flow and provides
-  ``BeforePhase`` and ``AfterPhase`` events for this. Currently, it includes only the "unit_testing" phase but will be extended in the future.
+  ``BeforePhase`` and ``AfterPhase`` events for this. Currently, it includes only "unit_testing" and "stateful_testing" phases
+  but will be extended in the future.
 - Support for sending ``text/plain`` payload as test data. `#850`_
 - Generating data for all media types defined for an operation. `#690`_
 - Support for user-defined media types serialization. You can define how Schemathesis should handle media types defined
