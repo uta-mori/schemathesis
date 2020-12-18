@@ -15,8 +15,8 @@ from ...models import Case, Endpoint
 from ...stateful import Feedback
 from ...utils import NOT_SET
 from .constants import LOCATION_TO_CONTAINER
-from .parameters import OpenAPIParameter, parameters_to_json_schema
 from .negative import negative_schema
+from .parameters import OpenAPIParameter, parameters_to_json_schema
 
 PARAMETERS = frozenset(("path_parameters", "headers", "cookies", "query", "body"))
 SLASH = "/"
@@ -144,23 +144,23 @@ def get_case_strategy(  # pylint: disable=too-many-locals
 
 
 def _get_body_strategy(
-    parameter: OpenAPIParameter, to_strategy: Callable[[Dict[str, Any]], st.SearchStrategy]
+    parameter: OpenAPIParameter, to_strategy: Callable[[Dict[str, Any], str], st.SearchStrategy]
 ) -> st.SearchStrategy:
     schema = parameter.as_json_schema()
-    strategy = to_strategy(schema)
+    strategy = to_strategy(schema, "body")
     if not parameter.is_required:
         strategy |= st.just(NOT_SET)
     return strategy
 
 
 def get_parameters_strategy(
-    endpoint: Endpoint, to_strategy: Callable[[Dict[str, Any]], st.SearchStrategy], location: str
+    endpoint: Endpoint, to_strategy: Callable[[Dict[str, Any], str], st.SearchStrategy], location: str
 ) -> st.SearchStrategy:
     """Create a new strategy for the case's component from the endpoint parameters."""
     parameters = getattr(endpoint, LOCATION_TO_CONTAINER[location])
     if parameters:
         schema = parameters_to_json_schema(parameters)
-        strategy = to_strategy(schema)
+        strategy = to_strategy(schema, location)
         serialize = endpoint.get_parameter_serializer(location)
         if serialize is not None:
             strategy = strategy.map(serialize)
@@ -179,12 +179,12 @@ def get_parameters_strategy(
     return st.none()
 
 
-def make_positive_strategy(schema: Dict[str, Any]) -> st.SearchStrategy:
+def make_positive_strategy(schema: Dict[str, Any], location: str) -> st.SearchStrategy:
     return from_schema(schema, custom_formats=STRING_FORMATS)
 
 
-def make_negative_strategy(schema: Dict[str, Any], parameter: str) -> st.SearchStrategy:
-    return negative_schema(schema, parameter=parameter, custom_formats=STRING_FORMATS)
+def make_negative_strategy(schema: Dict[str, Any], location: str) -> st.SearchStrategy:
+    return negative_schema(schema, location=location, custom_formats=STRING_FORMATS)
 
 
 def is_valid_path(parameters: Dict[str, Any]) -> bool:
