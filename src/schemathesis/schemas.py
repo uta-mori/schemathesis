@@ -7,7 +7,7 @@ Their responsibilities:
 They give only static definitions of endpoints.
 """
 from collections.abc import Mapping
-from typing import Any, Callable, Dict, Generator, Iterable, Iterator, List, Optional, Sequence, Tuple, Type, Union
+from typing import Any, Callable, Dict, Generator, Iterable, Iterator, List, Optional, Tuple, Type, Union
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
 import attr
@@ -20,7 +20,7 @@ from ._hypothesis import create_test
 from .constants import DEFAULT_DATA_GENERATION_METHODS, DataGenerationMethod
 from .hooks import HookContext, HookDispatcher, HookScope, dispatch
 from .models import Case, Endpoint
-from .stateful import APIStateMachine, Stateful, StatefulTest
+from .stateful import APIStateMachine
 from .types import Filter, FormData, GenericTest, NotSet
 from .utils import NOT_SET, GenericResponse
 
@@ -104,12 +104,6 @@ class BaseSchema(Mapping):
 
     def get_strategies_from_examples(self, endpoint: Endpoint) -> List[SearchStrategy[Case]]:
         """Get examples from the endpoint."""
-        raise NotImplementedError
-
-    def get_stateful_tests(
-        self, response: GenericResponse, endpoint: Endpoint, stateful: Optional[Stateful]
-    ) -> Sequence[StatefulTest]:
-        """Get a list of additional tests, that should be executed after this response from the endpoint."""
         raise NotImplementedError
 
     def get_parameter_serializer(self, endpoint: Endpoint, location: str) -> Optional[Callable]:
